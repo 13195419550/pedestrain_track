@@ -10,7 +10,21 @@
 ## **快速使用**
 * 同步代码
 ```shell
-$ git clone https://github.com/jm12138/deep_sort_paddle.git
+$ git clone https://github.com/13195419550/pedestrain_track.git
 ```
-* 首先按照train中代码进行环境的安装及模型训练
-* 
+
+* 按照 [train](./train) 中代码进行环境的安装及模型训练
+* 训练完成后将模型导出到model/detection文件夹下
+
+* 预测推理
+```shell
+$ cd deep_sort_paddle
+
+$ python main.py \
+    --video_path PATH_TO_VIDEO \
+    --save_dir PATH_SAVE_DIR \
+    --use_gpu SET_IT_IF_USE_GPU \
+    --display SET_IT_IF_DISPLAY_RESULTS  
+```
+
+* 更多参数请查看 [main.py](./main.py) 源代码
