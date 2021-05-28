@@ -1,0 +1,76 @@
+# 通过github加速通道clone
+cd ~/work/
+! git clone https://hub.fastgit.org/PaddlePaddle/PaddleDetection.git
+
+# 安装其他依赖
+cd ~/work/PaddleDetection/
+pip install --user -r requirements.txt
+python setup.py install
+pip install --user -U numpy==1.17
+
+#安装cocoapi
+pip install git+https://hub.fastgit.org/philferriere/cocoapi.git#subdirectory=PythonAPI
+
+#测试环境是否安装成功
+cd ~/work/PaddleDetection/
+python ~/work/PaddleDetection/ppdet/modeling/tests/test_architectures.py
+
+# 解压数据
+# copy
+cd ~/work/PaddleDetection/dataset/
+pwd
+cp ~/data/data78424/MOT20-VOC2007.zip  .
+unzip -oq MOT20-VOC2007.zip
+
+#处理数据
+ from random import shuffle, seed
+ import os
+ base = '/home/aistudio/work/PaddleDetection/dataset/VOC2007/'
+
+ anos = os.listdir(os.path.join(base, 'Annotations'))
+ print('total:', len(anos))
+
+ seed(666)
+ shuffle(anos)
+
+ with open(os.path.join(base, 'ImageSets/train.txt'), 'w') as f:
+     for im in anos[:(len(anos)-1600)]:
+         info = 'Annotations/'+im+'\n'
+         f.write(info)
+
+ with open(os.path.join(base, 'ImageSets/val.txt'), 'w') as f:
+     for im in anos[-1600:]:
+         info = 'Annotations/'+im+'\n'
+         f.write(info)
+
+ CLASSES = ['person']
+
+ with open('/home/aistudio/work/PaddleDetection/dataset/VOC2007/ImageSets/label_list.txt', 'w+') as f:
+     for v in CLASSES:
+         print(v)
+         f.write(v+'\n')
+         
+#将数据转换成coco格式
+cd ~/work/PaddleDetection 
+ python tools/x2coco.py \
+   --dataset_type voc \
+   --voc_anno_dir /home/aistudio/work/PaddleDetection/dataset/VOC2007 \
+   --voc_anno_list /home/aistudio/work/PaddleDetection/dataset/VOC2007/ImageSets/train.txt \
+   --voc_label_list /home/aistudio/work/PaddleDetection/dataset/VOC2007/ImageSets/label_list.txt \
+   --voc_out_name ~/work/PaddleDetection/dataset/VOC2007/ImageSets/train.json
+    
+ cd ~/work/PaddleDetection 
+ python tools/x2coco.py \
+   --dataset_type voc \
+   --voc_anno_dir /home/aistudio/work/PaddleDetection/dataset/VOC2007 \
+   --voc_anno_list /home/aistudio/work/PaddleDetection/dataset/VOC2007/ImageSets/val.txt \
+   --voc_label_list /home/aistudio/work/PaddleDetection/dataset/VOC2007/ImageSets/label_list.txt \
+   --voc_out_name ~/work/PaddleDetection/dataset/VOC2007/ImageSets/val.json
+
+#启动训练
+cd ~/work/PaddleDetection
+python tools/train.py -c ~/work/PaddleDetection/configs/ppyolo/ppyolov2_r50vd_dcn_365e_coco.yml --use_vdl=true --vdl_log_dir=vdl_dir/scalar -o use_gpu=true
+
+#导出模型
+cd ~/work/PaddleDetection
+python tools/export_model.py -c ~/work/PaddleDetection/configs/ppyolo/ppyolov2_r50vd_dcn_365e_coco.yml -o weights=output/ppyolov2_r50vd_dcn_365e_coco/best_model
