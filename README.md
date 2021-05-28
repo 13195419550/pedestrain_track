@@ -28,3 +28,6 @@ $ python main.py \
 ```
 
 * 更多参数请查看 [main.py](./main.py) 源代码
+
+## **效果展示**
+![跟踪效果](https://user-images.githubusercontent.com/68137508/119922917-59142900-bfa3-11eb-8e40-034f09f2f2e2.gif)
